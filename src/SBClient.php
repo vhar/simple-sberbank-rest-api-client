@@ -129,15 +129,19 @@ class SBClient
             'returnUrl' => $order['returnUrl'],
         ];
 
-        if ($order['failUrl']) $params['failUrl'] = $order['failUrl'];
-        if ($order['currency']) $params['currency'] = $order['currency'];
-        if ($order['language']) $params['language'] = $order['language'];
-        if ($order['pageView']) $params['pageView'] = $order['pageView'];
-        if (isset($order['params']) && !is_array($order['params'])) {
-            throw new ErrorException('params must be array');
+        if (isset($order['failUrl'])) $params['failUrl'] = $order['failUrl'];
+        if (isset($order['currency'])) $params['currency'] = $order['currency'];
+        if (isset($order['language'])) $params['language'] = $order['language'];
+        if (isset($order['pageView'])) $params['pageView'] = $order['pageView'];
+        if (isset($order['params'])) {
+            if (is_array($order['params'])) {
+                $params['params'] = json_encode($order['params']);
+            }
+            else {
+                throw new ErrorException('params must be array');
+            }
         }
-        if ($order['params']) $params['params'] = json_encode($order['params']);
-        if ($order['sessionTimeoutSecs']) $params['sessionTimeoutSecs'] = $order['sessionTimeoutSecs'];
+        if (isset($order['sessionTimeoutSecs'])) $params['sessionTimeoutSecs'] = $order['sessionTimeoutSecs'];
 
         $request = sprintf($url, http_build_query($params));
         $response = $this->client->request('GET', $request);
@@ -180,7 +184,7 @@ class SBClient
     {
         $url = $this->getApiUrl() . '/payment/rest/getOrderStatusExtended.do?%s';
 
-        if (!$order['orderNumber'] && !$order['orderId']) {
+        if (!isset($order['orderNumber']) && !isset($order['orderId'])) {
             throw new ErrorException('Please provide orderId OR orderNumber');
         }
 
@@ -193,9 +197,9 @@ class SBClient
             'password' => $this->shopPassword,
         ];
 
-        if ($order['orderNumber']) $params['orderNumber'] = $order['orderNumber'];
-        if ($order['orderId']) $params['orderId'] = $order['orderId'];
-        if ($order['language']) $params['language'] = $order['language'];
+        if (isset($order['orderNumber'])) $params['orderNumber'] = $order['orderNumber'];
+        if (isset($order['orderId'])) $params['orderId'] = $order['orderId'];
+        if (isset($order['language'])) $params['language'] = $order['language'];
 
         $request = sprintf($url, http_build_query($params));
         $response = $this->client->request('GET', $request);
@@ -253,8 +257,15 @@ class SBClient
             'orderId' => $order['orderId'],
         ];
 
-        if ($order['language']) $params['language'] = $order['language'];
-        if ($order['params']) $params['params'] = json_encode($order['params']);
+        if (isset($order['language'])) $params['language'] = $order['language'];
+        if (isset($order['jsonParams'])) {
+            if (is_array($order['jsonParams'])) {
+                $params['jsonParams'] = json_encode($order['jsonParams']);
+            }
+            else {
+                throw new ErrorException('jsonParams must be array');
+            }
+        }
 
         $request = sprintf($url, http_build_query($params));
         $response = $this->client->request('GET', $request);
@@ -308,7 +319,14 @@ class SBClient
             'orderId' => $order['orderId'],
         ];
 
-        if ($order['params']) $params['params'] = json_encode($order['params']);
+        if (isset($order['jsonParams'])) {
+            if (is_array($order['jsonParams'])) {
+                $params['jsonParams'] = json_encode($order['jsonParams']);
+            }
+            else {
+                throw new ErrorException('jsonParams must be array');
+            }
+        }
 
         $request = sprintf($url, http_build_query($params));
         $response = $this->client->request('GET', $request);
