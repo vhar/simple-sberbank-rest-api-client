@@ -2,12 +2,11 @@
 /**
  * Client for working with Sberbank REST API.
  *
- * For detailed information
- * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:start
- *
  * @package vhar\sberbank
  * @author Vladimir Kharinenkov <vhar@mail.ru>
  * @version 0.1.1
+ *
+ * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:start
  */
 
 namespace VHar\Sberbank;
@@ -20,10 +19,10 @@ use GuzzleHttp\Client;
  */
 class SBClient
 {
-    /**
-     * constant URLs to access REST requests
-     */
+    /** @var const URLs to access Production REST requests */
     const API_PROD_URL = 'https://securepayments.sberbank.ru';
+
+    /** @var const URLs to access Test REST requests */
     const API_TEST_URL = 'https://3dsec.sberbank.ru';
 
     /** @var array Default request options */
@@ -84,7 +83,6 @@ class SBClient
      *    - errorCode: (int) Error code. May be absent if the result did not result in an error.
      *    - errorMessage: (string) Description of the error in the language passed in the language parameter in the request.
      *
-     * For detailed information
      * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:register
      */
     public function registerOrder($order)
@@ -149,7 +147,6 @@ class SBClient
      *    - errorCode: (int) Error code. May be absent if the result did not result in an error.
      *    - errorMessage: (string) Description of the error in the language passed in the language parameter in the request.
      *
-     * For detailed information
      * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:getorderstatusextended
      */
     public function getOrderStatusExtended($order)
@@ -208,7 +205,6 @@ class SBClient
      *                 7 Reversal is impossible. The chargeback flag is set for this payment.
      *    - errorMessage: (string) Description of the error in the language passed in the language parameter in the request.
      *
-     * For detailed information
      * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:reverse
      */
     public function reverseOrder($order)
@@ -262,7 +258,6 @@ class SBClient
      *                 7 System error.
      *    - errorMessage: (string) Description of the error in the language passed in the language parameter in the request.
      *
-     * For detailed information
      * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:refund
      */
     public function refundOrder($order)
