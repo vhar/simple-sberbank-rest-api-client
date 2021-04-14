@@ -44,7 +44,8 @@ if (isset($response->errorCode) && $response->errorMessage) {
 }
 else {
 /**
- * Сохраняем полученный orderId, например в базу. Он понадобится в случае отмены заказа или повторного запроса статуса.
+ * Сохраняем полученный orderId, например в базу.
+ * Он понадобится в случае отмены заказа или повторного запроса статуса.
  * Перенаправляем пользователя на форму оплаты
  */
     header('Location: '.$response->formUrl);
@@ -69,7 +70,8 @@ $sber = new VHar\Sberbank\SBClient($config, $http_client);
 
 /**
  * В примере показано только обязательное поле.
- * Описание полей и кодов возврата https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:getorderstatusextended
+ * Описание полей и кодов возврата
+ * https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:getorderstatusextended
  * Tак же вы можете запросить состояние счета в любой момент, указав полученный при регистрации счета orderId
  */
 $orderData = [
