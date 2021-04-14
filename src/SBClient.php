@@ -6,7 +6,6 @@
  * @author Vladimir Kharinenkov <vhar@mail.ru>
  * @version 0.1.1
  *
- * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:start
  */
 
 namespace VHar\Sberbank;
@@ -15,29 +14,50 @@ use ErrorException;
 use GuzzleHttp\Client;
 
 /**
- * Class SBClient
+ * Class SBClient for working with Sberbank REST API.
+ * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:start
  */
 class SBClient
 {
-    /** @var const URLs to access Production REST requests */
+    /**
+     * URL to access Production REST requests
+     * @var const API_PROD_URL
+     */
     const API_PROD_URL = 'https://securepayments.sberbank.ru';
 
-    /** @var const URLs to access Test REST requests */
+    /**
+     * URL to access Test REST requests
+     * @var const
+     */
     const API_TEST_URL = 'https://3dsec.sberbank.ru';
 
-    /** @var array Default request options */
+    /**
+     * Basic request options
+     * @var array
+     */
     private $config;
 
-    /**  @var Client Http Client */
+    /**
+     *  Http Client
+     * @var Client
+     */
     private $client;
 
     /**
+     * Clients accept an array of constructor parameters.
+     *
      * @param array   $config  Associative array of options
+     *
      *    Required optiions:
      *    - shopLogin: (string) Shop login for REST API access
      *    - shopPassword: (string) Shop password for REST API access
+     *
      *    Additional option:
-     *    - test_mode: (int) 0 - for production, 1 - for test payment gateway (default is 0)
+     *    - test_mode: (int)
+     *                 <ul>0 - production payment gateway.</ul>
+     *                 <ul>1 - test payment gateway</ul>
+     *                 <b>default is 0</b>
+     *
      * @param Client  $client  GuzzleHttp\Client used to send the requests.
      */
 
@@ -61,21 +81,23 @@ class SBClient
      * Creating a new order
      *
      * @param array $order Associative array of order options
+     *
      *    Required options:
-     *    - orderNumber: (string) Order number (identifier) in the shop system
-     *    - amount: (int) The amount of the order in the minimum units of the shop currency (kopecks, cents, etc.)
-     *    - returnUrl: (string) URL to redirect the user in case of successful payment.
-     *                          The URL must be specified in full, including the used protocol
+     *    - orderNumber: (string) Order number (identifier) in the shop system.
+     *    - amount: (int) The amount of the order in the minimum units of the shop currency (kopecks, cents, etc.).
+     *    - returnUrl: (string) URL to redirect the user in case of successful payment.<br>
+     *                          The URL must be specified in full, including the used protocol.
+     *
      *    Additional options:
-     *    - failUrl: (string) URL to redirect the user in case of failed payment.
-     *                        The URL must be specified in full, including the used protocol
+     *    - failUrl: (string) URL to redirect the user in case of failed payment.<br>
+     *                        The URL must be specified in full, including the used protocol.<br>
      *                        If not specified, then like with a successful payment, the redirect to returnUrl will occur.
-     *    - currency: (int) Payment currency code in ISO 4217 format
-     *    - language: (string) Language code in ISO 639-1 format
-     *    - pageView: (string) DESKTOP - for loading pages, the layout of which is intended for display on PC screens
-     *                         MOBILE - for loading pages, the layout of which is intended for display on tablet or smartphone screens
-     *    - params: Associative array of additional options
-     *    - sessionTimeoutSecs: (int) The lifetime of the order in seconds. (default is 1200 sec)
+     *    - currency: (int) Payment currency code in ISO 4217 format.
+     *    - language: (string) Language code in ISO 639-1 format.
+     *    - pageView: (string) <ul><i>DESKTOP</i> - for loading pages, the layout of which is intended for display on PC screens.</ul>
+     *                         <ul><i>MOBILE</i> - for loading pages, the layout of which is intended for display on tablet or smartphone screens.</ul>
+     *    - params: Associative array of additional options.
+     *    - sessionTimeoutSecs: (int) The lifetime of the order in seconds. (default is 1200 sec).
      *
      * @return Object containing the following data:
      *    - orderId: (string) Order number in the payment system.
@@ -127,24 +149,29 @@ class SBClient
      * Check order status
      *
      * @param array $order Associative array of order options
+     *
      *    Required options:
-     *    - orderId: (string) Order number in the payment system
-     *   or
+     *    - orderId: (string) Order number in the payment system<br>
+     *    <b>OR</b>
      *    - orderNumber: (string) Order number (identifier) in the shop system
+     *
      *    Additional options:
      *    - language: (string) Language code in ISO 639-1 format
      *
      * @return Object containing the following data:
-     *    <<i>>only the parameters that are significant for the library operation are listed. see the entire list at the link below<</i>>
+     *
+     *    <i>only the parameters that are significant for the library operation are listed. see the entire list at the link below.</i>
      *    - orderNumber: (string) Order number (identifier) in the shop system
-     *    - orderStatus: (int) 0 - the order is registered, but not paid;
-     *                         1 - the pre-authorized amount has been withheld (for two-stage payments);
-     *                         2 - full authorization of the order amount has been carried out;
-     *                         3 - authorization canceled;
-     *                         4 - a refund operation was performed on the transaction;
-     *                         5 - authorization is initiated through the access control server of the issuing bank;
-     *                         6 - authorization rejected.
+     *    - orderStatus: (int) <ul>0 - the order is registered, but not paid.</ul>
+     *                         <ul>1 - the pre-authorized amount has been withheld (for two-stage payments).</ul>
+     *                         <ul>2 - full authorization of the order amount has been carried out.</ul>
+     *                         <ul>3 - authorization canceled.</ul>
+     *                         <ul>4 - a refund operation was performed on the transaction.</ul>
+     *                         <ul>5 - authorization is initiated through the access control server of the issuing bank.</ul>
+     *                         <ul>6 - authorization rejected.</ul>
      *    - errorCode: (int) Error code. May be absent if the result did not result in an error.
+     *                       <ul>1 - <i>[orderId]</i> or <i>[orderNumber]</i> expected.</ul>
+     *                       <ul>7 - This transaction is being processed. Please try again later.</ul>
      *    - errorMessage: (string) Description of the error in the language passed in the language parameter in the request.
      *
      * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:getorderstatusextended
@@ -153,7 +180,6 @@ class SBClient
     {
         $url = $this->getApiUrl() . '/payment/rest/getOrderStatusExtended.do?%s';
 
-        // Required params
         if (!$order['orderNumber'] && !$order['orderId']) {
             throw new ErrorException('Please provide orderId OR orderNumber');
         }
@@ -181,8 +207,10 @@ class SBClient
      * Cancel order payment
      *
      * @param array $order Associative array of order options
+     *
      *    Required options:
      *    - orderId: (string) Order number in the payment system
+     *
      *    Additional options:
      *    - amount: (int) Partial cancellation amount. Parameter required for partial cancellation.
      *    - jsonParams:  Associative array of additional options
@@ -190,20 +218,20 @@ class SBClient
      *
      * @return Object containing the following data:
      *    - errorCode: (int) Error code. May be absent if the result did not result in an error.
-     *                 0 The request was processed without system errors.
-     *                 5 Access denied.
-     *                 5 The user must change his password.
-     *                 5 [orderId] not set.
-     *                 5 Unsuccessful.
-     *                 6 Invalid order number.
-     *                 6 Unregistered orderId.
-     *                 7 Invalid operation for the current order status.
-     *                 7 System error.
-     *                 7 Reversal is impossible.The holding and deposit amounts must be equal for the transaction after the funds are unblocked.
-     *                 7 This transaction is being processed. Please try again later.
-     *                 7 Reversal is impossible. Reason: incorrect internal values, check the amount of hold, deposit.
-     *                 7 Reversal is impossible. The chargeback flag is set for this payment.
-     *    - errorMessage: (string) Description of the error in the language passed in the language parameter in the request.
+     *                 <ul>0 - The request was processed without system errors.</ul>
+     *                 <ul>5 - Access denied.</ul>
+     *                 <ul>5 - The user must change his password.</ul>
+     *                 <ul>5 - <i>[orderId]</i> not set.</ul>
+     *                 <ul>5 - Unsuccessful.</ul>
+     *                 <ul>6 - Invalid order number.</ul>
+     *                 <ul>6 - Unregistered orderId.</ul>
+     *                 <ul>7 - Invalid operation for the current order status.</ul>
+     *                 <ul>7 - System error.</ul>
+     *                 <ul>7 - Reversal is impossible.The holding and deposit amounts must be equal for the transaction after the funds are unblocked.</ul>
+     *                 <ul>7 - This transaction is being processed. Please try again later.</ul>
+     *                 <ul>7 - Reversal is impossible. Reason: incorrect internal values, check the amount of hold, deposit.</ul>
+     *                 <ul>7 - Reversal is impossible. The chargeback flag is set for this payment.</ul>
+     *    - errorMessage: (string) Description of the error in the language passed in the language parameter in the request.</ul>
      *
      * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:reverse
      */
@@ -239,23 +267,25 @@ class SBClient
      * Refund order payment
      *
      * @param array $order Associative array of order options
+     *
      *    Required options:
      *    - orderId: (string) Order number in the payment system
      *    - amount: (int) The amount of the order in the minimum units of the shop currency (kopecks, cents, etc.)
+     *
      *    Additional options:
      *    - jsonParams:  Associative array of additional options
      *
      * @return Object containing the following data:
      *    - errorCode: (int) Error code. May be absent if the result did not result in an error.
-     *                 0 The request was processed without system errors.
-     *                 5 Access denied.
-     *                 5 The user must change his password.
-     *                 5 [orderId] not set.
-     *                 5 Invalid amount.
-     *                 6 Invalid order number.
-     *                 7 The payment must be in the correct state.
-     *                 7 Refund amount exceeds the amount debited.
-     *                 7 System error.
+     *                 <ul>0 - The request was processed without system errors.</ul>
+     *                 <ul>5 - Access denied.</ul>
+     *                 <ul>5 - The user must change his password.</ul>
+     *                 <ul>5 - <i>[orderId]</i> not set.</ul>
+     *                 <ul>5 - Invalid amount.</ul>
+     *                 <ul>6 - Invalid order number.</ul>
+     *                 <ul>7 - The payment must be in the correct state.</ul>
+     *                 <ul>7 - Refund amount exceeds the amount debited.</ul>
+     *                 <ul>7 - System error.</ul>
      *    - errorMessage: (string) Description of the error in the language passed in the language parameter in the request.
      *
      * @see https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:refund
@@ -286,7 +316,11 @@ class SBClient
         return json_decode($response->getBody());
     }
 
-    /** @return string Test or Production API URL based on test_mode $config option */
+    /**
+    * Get API URL based on test_mode $config option
+    *
+    * @return string Production or Test REST API URL
+    */
     private function getApiUrl()
     {
         if ($this->test_mode) {
