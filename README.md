@@ -14,6 +14,7 @@ composer require vhar/sberbank
 Регистрируем счет в личном кабинете СБ
 ```php
 <?php
+
 use GuzzleHttp\Client;
 use VHar\Sberbank\SBClient;
 
@@ -23,8 +24,8 @@ $config = [
     'test_mode' => 0, // 0 - production, 1 - test
 ];
 
-$http_client = new GuzzleHttp\Client();
-$sber = new VHar\Sberbank\SBClient($config, $http_client);
+$http_client = new Client();
+$sber = new SBClient($config, $http_client);
 
 /**
  * В примере показаны только обязательные поля.
@@ -41,8 +42,7 @@ if (isset($response->errorCode) && $response->errorMessage) {
 /**
  * Если получили ошибку, то что то делаем
  */
-}
-else {
+} else {
 /**
  * Сохраняем полученный orderId, например в базу.
  * Он понадобится в случае отмены заказа или повторного запроса статуса.
@@ -56,6 +56,7 @@ else {
 Обрабатываем возврат после оплаты
 ```php
 <?php
+
 use GuzzleHttp\Client;
 use VHar\Sberbank\SBClient;
 
@@ -65,8 +66,8 @@ $config = [
     'test_mode' => 0, // 0 - production, 1 - test
 ];
 
-$http_client = new GuzzleHttp\Client(); //
-$sber = new VHar\Sberbank\SBClient($config, $http_client);
+$http_client = new Client();
+$sber = new SBClient($config, $http_client);
 
 /**
  * В примере показано только обязательное поле.
@@ -83,8 +84,7 @@ if (isset($response->errorCode) && $response->errorCode) {
 /**
  * Если получили ошибку, то что то делаем
  */
-}
-else {
+} else {
 /**
  * Обрабатываем платеж по результатам значения $response->orderStatus
  * см. https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:getorderstatusextended
@@ -96,6 +96,7 @@ else {
 
 ```php
 <?php
+
 use GuzzleHttp\Client;
 use VHar\Sberbank\SBClient;
 
@@ -105,8 +106,8 @@ $config = [
     'test_mode' => 0, // 0 - production, 1 - test
 ];
 
-$http_client = new GuzzleHttp\Client(); //
-$sber = new VHar\Sberbank\SBClient($config, $http_client);
+$http_client = new Client();
+$sber = new SBClient($config, $http_client);
 
 /**
  * см. https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:refund
