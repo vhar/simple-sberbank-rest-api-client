@@ -1,13 +1,13 @@
 {
     "name": "vhar/sberbank",
     "description": "Simple PHP client for Sperbank acquiring REST API",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "type": "library",
     "keywords": ["sberbank", "sberbank online", "credit card", "sberbank acquiring"],
     "require": {
         "php": ">=7.1",
         "ext-json": "*",
-        "guzzlehttp/guzzle": ">=6.5.5"
+        "guzzlehttp/guzzle": "^6.1.0|^7.3"
     },
     "license": "MIT",
     "authors": [
