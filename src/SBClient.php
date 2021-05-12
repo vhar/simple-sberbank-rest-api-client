@@ -4,7 +4,7 @@
  *
  * @package vhar\sberbank
  * @author Vladimir Kharinenkov <vhar@mail.ru>
- * @version 0.1.1
+ * @version 0.1.2
  *
  */
 
