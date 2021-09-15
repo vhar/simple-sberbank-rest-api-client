@@ -4,7 +4,7 @@
  *
  * @package vhar\sberbank
  * @author Vladimir Kharinenkov <vhar@mail.ru>
- * @version 0.1.2
+ * @version 0.1.3
  *
  */
 
@@ -96,7 +96,7 @@ class SBClient
      *    - language: (string) Language code in ISO 639-1 format.
      *    - pageView: (string) <ul><i>DESKTOP</i> - for loading pages, the layout of which is intended for display on PC screens.</ul>
      *                         <ul><i>MOBILE</i> - for loading pages, the layout of which is intended for display on tablet or smartphone screens.</ul>
-     *    - params: Associative array of additional options.
+     *    - jsonParams: Associative array of additional options.
      *    - sessionTimeoutSecs: (int) The lifetime of the order in seconds. (default is 1200 sec).
      *
      * @return Object containing the following data:
@@ -129,19 +129,18 @@ class SBClient
             'returnUrl' => $order['returnUrl'],
         ];
 
-        if (isset($order['failUrl'])) $params['failUrl'] = $order['failUrl'];
-        if (isset($order['currency'])) $params['currency'] = $order['currency'];
-        if (isset($order['language'])) $params['language'] = $order['language'];
-        if (isset($order['pageView'])) $params['pageView'] = $order['pageView'];
-        if (isset($order['params'])) {
-            if (is_array($order['params'])) {
-                $params['params'] = json_encode($order['params']);
+        if (isset($order['jsonParams'])) {
+            if (is_array($order['jsonParams'])) {
+                $params['jsonParams'] = json_encode($order['jsonParams']);
             }
             else {
-                throw new ErrorException('params must be array');
+                throw new ErrorException('jsonParams must be array');
             }
         }
-        if (isset($order['sessionTimeoutSecs'])) $params['sessionTimeoutSecs'] = $order['sessionTimeoutSecs'];
+
+        foreach($order as $key => $param){
+            $params[$key] = $params[$key] ?? $param;
+        }
 
         $request = sprintf($url, http_build_query($params));
         $response = $this->client->request('GET', $request);
