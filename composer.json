@@ -1,7 +1,7 @@
 {
     "name": "vhar/sberbank",
     "description": "Simple PHP client for Sperbank acquiring REST API",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "type": "library",
     "keywords": ["sberbank", "sberbank online", "credit card", "sberbank acquiring"],
     "require": {
