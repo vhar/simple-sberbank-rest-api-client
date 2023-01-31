@@ -4,14 +4,13 @@
  *
  * @package vhar\sberbank
  * @author Vladimir Kharinenkov <vhar@mail.ru>
- * @version 0.1.3
+ * @version 1.0.1
  *
  */
 
 namespace VHar\Sberbank;
 
 use ErrorException;
-use GuzzleHttp\Client;
 
 /**
  * Class SBClient for working with Sberbank REST API.
@@ -32,16 +31,34 @@ class SBClient
     const API_TEST_URL = 'https://3dsec.sberbank.ru';
 
     /**
-     * Basic request options
-     * @var array
-     */
-    private $config;
-
-    /**
      *  Http Client
      * @var Client
      */
     private $client;
+
+    /**
+     * Shop login for REST API access
+     * @var string
+     */
+    private $shopLogin;
+
+    /**
+     * Shop password for REST API access
+     * @var string
+     */
+    private $shopPassword;
+
+    /**
+     * use test or production payment gateway
+     * @var int
+     */
+    private $testMode;
+
+    /**
+     * SSL certificate validation
+     * @var mixed
+     */
+    private $sslVerify;
 
     /**
      * Clients accept an array of constructor parameters.
@@ -53,28 +70,45 @@ class SBClient
      *    - shopPassword: (string) Shop password for REST API access
      *
      *    Additional option:
-     *    - test_mode: (int)
+     *    - sslVerify: mixed
+     *                 <ul>0 - Disable validation entirely (don't do this!)</ul>
+     *                 <ul>1 - Use the system's CA bundle (this is the default setting)</ul>
+     *                 <ul>'/path/to/cert.pem' - Use a custom SSL certificate on disk</ul>
+     *    - testMode: (int)
      *                 <ul>0 - production payment gateway.</ul>
      *                 <ul>1 - test payment gateway</ul>
      *                 <b>default is 0</b>
-     *
-     * @param Client  $client  GuzzleHttp\Client used to send the requests.
      */
-
-    public function __construct(array $config = [], Client $client)
+    public function __construct(array $config = [])
     {
-        $this->client = $client ?? new GuzzleHttp\Client();
-
         $this->shopLogin = $config['shopLogin'] ?? null;
+
         if (!$this->shopLogin) {
             throw new ErrorException('Please provide shopLogin');
         }
+
         $this->shopPassword = $config['shopPassword'] ?? null;
+
         if (!$this->shopPassword) {
             throw new ErrorException('Please provide shopPassword');
         }
 
-        $this->test_mode = $config['test_mode'] ?? 0;
+        $this->testMode = $config['testMode'] ?? 0;
+
+        $this->sslVerify = true;
+
+        if (isset($config['sslVerify'])) {
+            if ($config['sslVerify'] === 0) {
+                $this->sslVerify = false;
+            } elseif (is_file($config['sslVerify'])) {
+                $this->sslVerify = $config['sslVerify'];
+            }
+        }
+
+        $this->client = new \GuzzleHttp\Client([
+            'base_uri' => $this->getApiUrl(),
+            'verify'   => $this->sslVerify,
+        ]);
     }
 
     /**
@@ -109,7 +143,7 @@ class SBClient
      */
     public function registerOrder($order)
     {
-        $url = $this->getApiUrl() . '/payment/rest/register.do?%s';
+        $url = '/payment/rest/register.do?%s';
 
         if (!$order['orderNumber']) {
             throw new ErrorException('Please provide orderNumber');
@@ -143,7 +177,7 @@ class SBClient
         }
 
         $request = sprintf($url, http_build_query($params));
-        $response = $this->client->request('GET', $request);
+        $response = $this->client->request('POST', $request);
 
         return json_decode($response->getBody());
     }
@@ -181,7 +215,7 @@ class SBClient
      */
     public function getOrderStatusExtended($order)
     {
-        $url = $this->getApiUrl() . '/payment/rest/getOrderStatusExtended.do?%s';
+        $url = '/payment/rest/getOrderStatusExtended.do?%s';
 
         if (!isset($order['orderNumber']) && !isset($order['orderId'])) {
             throw new ErrorException('Please provide orderId OR orderNumber');
@@ -201,7 +235,7 @@ class SBClient
         if (isset($order['language'])) $params['language'] = $order['language'];
 
         $request = sprintf($url, http_build_query($params));
-        $response = $this->client->request('GET', $request);
+        $response = $this->client->request('POST', $request);
 
         return json_decode($response->getBody());
     }
@@ -240,7 +274,7 @@ class SBClient
      */
     public function reverseOrder($order)
     {
-        $url = $this->getApiUrl() . '/payment/rest/reverse.do?%s';
+        $url = '/payment/rest/reverse.do?%s';
 
         if (!$order['amount']) {
             throw new ErrorException('Please provide amount');
@@ -267,7 +301,7 @@ class SBClient
         }
 
         $request = sprintf($url, http_build_query($params));
-        $response = $this->client->request('GET', $request);
+        $response = $this->client->request('POST', $request);
 
         return json_decode($response->getBody());
     }
@@ -302,7 +336,7 @@ class SBClient
      */
     public function refundOrder($order)
     {
-        $url = $this->getApiUrl() . '/payment/rest/refund.do?%s';
+        $url = '/payment/rest/refund.do?%s';
 
         if (!$order['amount']) {
             throw new ErrorException('Please provide amount');
@@ -328,19 +362,19 @@ class SBClient
         }
 
         $request = sprintf($url, http_build_query($params));
-        $response = $this->client->request('GET', $request);
+        $response = $this->client->request('POST', $request);
 
         return json_decode($response->getBody());
     }
 
     /**
-    * Get API URL based on test_mode $config option
+    * Get API URL based on testMode $config option
     *
     * @return string Production or Test REST API URL
     */
     private function getApiUrl()
     {
-        if ($this->test_mode) {
+        if ($this->testMode) {
             return self::API_TEST_URL;
         } else {
             return self::API_PROD_URL;

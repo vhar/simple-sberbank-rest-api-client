@@ -15,17 +15,16 @@ composer require vhar/sberbank
 ```php
 <?php
 
-use GuzzleHttp\Client;
 use VHar\Sberbank\SBClient;
 
 $config = [
     'shopLogin' => 'ваш-api-логин',
     'shopPassword' => 'ваш-api-пароль',
-    'test_mode' => 0, // 0 - production, 1 - test
+    'testMode' => 0, // 0 - production, 1 - test
+    'sslVerify' => 1 // 0 - игнорировать ошибки SSL сертификата (не делайте так!), 1 - проверять SSL сертификат (по умолчанию), '/path/to/cert.pem' - использовать пользовательский сертификат для проверки
 ];
 
-$http_client = new Client();
-$sber = new SBClient($config, $http_client);
+$sber = new SBClient($config);
 
 /**
  * В примере показаны только обязательные поля.
@@ -57,17 +56,16 @@ if (isset($response->errorCode) && $response->errorMessage) {
 ```php
 <?php
 
-use GuzzleHttp\Client;
 use VHar\Sberbank\SBClient;
 
 $config = [
     'shopLogin' => 'ваш-api-логин',
     'shopPassword' => 'ваш-api-пароль',
-    'test_mode' => 0, // 0 - production, 1 - test
+    'testMode' => 0, // 0 - production, 1 - test
+    'sslVerify' => 1 // 0 - игнорировать ошибки SSL сертификата (не делайте так!), 1 - проверять SSL сертификат (по умолчанию), '/path/to/cert.pem' - использовать пользовательский сертификат для проверки
 ];
 
-$http_client = new Client();
-$sber = new SBClient($config, $http_client);
+$sber = new SBClient($config);
 
 /**
  * В примере показано только обязательное поле.
@@ -97,17 +95,16 @@ if (isset($response->errorCode) && $response->errorCode) {
 ```php
 <?php
 
-use GuzzleHttp\Client;
 use VHar\Sberbank\SBClient;
 
 $config = [
     'shopLogin' => 'ваш-api-логин',
     'shopPassword' => 'ваш-api-пароль',
-    'test_mode' => 0, // 0 - production, 1 - test
+    'testMode' => 0, // 0 - production, 1 - test
+    'sslVerify' => 1 // 0 - игнорировать ошибки SSL сертификата (не делайте так!), 1 - проверять SSL сертификат (по умолчанию), '/path/to/cert.pem' - использовать пользовательский сертификат для проверки
 ];
 
-$http_client = new Client();
-$sber = new SBClient($config, $http_client);
+$sber = new SBClient($config);
 
 /**
  * см. https://securepayments.sberbank.ru/wiki/doku.php/integration:api:rest:requests:refund
